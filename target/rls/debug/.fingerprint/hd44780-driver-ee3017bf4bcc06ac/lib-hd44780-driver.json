@@ -1,0 +1,1 @@
+{"rustc":6339714466149818003,"features":"[]","target":12905603702758881076,"profile":16668067249205866872,"path":2713357447516679942,"deps":[[12960296871580644533,"embedded_hal",false,11326439056808056889]],"local":[{"CheckDepInfo":{"dep_info":"debug/.fingerprint/hd44780-driver-ee3017bf4bcc06ac/dep-lib-hd44780-driver"}}],"rustflags":[],"metadata":12624069386080087645,"config":0}

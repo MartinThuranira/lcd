@@ -1,0 +1,3 @@
+cargo:rustc-link-search=/home/martin/Documents/littleKidogo/lcd_mine/target/rls/debug/build/stm32f1-9c107949520d0438/out
+cargo:rerun-if-changed=src/stm32f103/device.x
+cargo:rerun-if-changed=build.rs
