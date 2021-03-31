@@ -53,19 +53,19 @@ const APP: () = {
     let mut lcd = HD44780::new_4bit(rs, en, b4, b5, b6, b7, &mut delay);
 
 // Unshift display and set cursor to 0
-lcd.unwrap().reset(&mut delay); 
+//lcd.unwrap().reset(&mut delay); 
 
 // Clear existing characters
-lcd.expect("invalid conection").clear(&mut delay); 
+//lcd.expect("invalid conection").clear(&mut delay); 
 
 // Display the following string
 lcd.expect("invalid conection").write_str("Hello, world!", &mut delay);
 
 // Move the cursor to the second line
-lcd.expect("invalid conection").set_cursor_pos(40, &mut delay);
+//lcd.expect("invalid conection").set_cursor_pos(40, &mut delay);
 
 // Display the following string on the second line
-lcd.expect("invalid conection").write_str("I'm on line 2!", &mut delay);
+//lcd.expect("invalid conection").write_str("I'm on line 2!", &mut delay);
 
 
     // lcd.reset();
