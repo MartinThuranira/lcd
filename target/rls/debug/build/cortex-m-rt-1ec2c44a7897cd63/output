@@ -1,3 +1,0 @@
-cargo:rustc-link-search=/home/martin/Documents/littleKidogo/lcd_mine/target/rls/debug/build/cortex-m-rt-1ec2c44a7897cd63/out
-cargo:rerun-if-changed=build.rs
-cargo:rerun-if-changed=link.x.in

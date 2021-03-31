@@ -1,3 +1,0 @@
-cargo:rustc-link-lib=static=cortex-m-semihosting
-cargo:rustc-link-search=/home/martin/Documents/littleKidogo/lcd_mine/target/thumbv7m-none-eabi/debug/build/cortex-m-semihosting-3313bcacba9810e3/out
-cargo:rustc-cfg=thumb
