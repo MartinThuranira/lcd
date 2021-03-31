@@ -1,76 +1,93 @@
 #![no_std]
 #![no_main]
 
-extern crate panic_halt;
-
-use cortex_m_rt::entry;
-use hal::flash::FlashExt;
-use hal::gpio::GpioExt;
-use hal::rcc::RccExt;
-use hd44780_driver::masync::HD44780;
+use stm32f1xx_hal::gpio::GpioExt;
+use stm32f1xx_hal::prelude::_stm32_hal_rcc_RccExt;
+use stm32f1xx_hal::flash::FlashExt;
+use panic_halt as _;
+use cortex_m_semihosting::{debug,hprintln};
+use rtic::app;
+//use stm32f1::stm32f103;
 use hd44780_driver::{Cursor, CursorBlink, Display, DisplayMode, HD44780};
+use stm32f1xx_hal::{gpio::{gpioa::PA15,Output,PushPull},
+                    stm32::*,
+                    pac::*,
+                    
+};
 
-// Connections:
-// VSS: GND
-// VDD: 5V
-// V0:  10k poti between 5V and GND
-// RS:  PD1
-// RW:  GND
-// E:   PD2
-// D4-D7: PD4-PD7
-// A:   5V
-// K:   GND
 
-#[entry]
-fn main() -> ! {
-    let cp = cortex_m::Peripherals::take().unwrap();
-    let dp = hal::stm32f30x::Peripherals::take().unwrap();
+#[app(device = stm32f1xx_hal::stm32, peripherals = true)]
+const APP: () = {
+/*
+    struct Resources{
+        delay:Delay,
+    }*/
+    #[init]
+    fn init(cx:init::Context) //-> init::LateResources 
+    {
+    
+        let cp = cx.core;
+        //let dp = cx.device;
+        let dp = stm32f1xx_hal::pac::Peripherals::take().unwrap();
+        //let dp = stm32f1xx_hal::stm32::Peripherals::take().unwrap();
+        //hprintln!("Hello, world!").unwrap();
 
-    let mut flash = dp.FLASH.constrain();
-    let mut rcc = dp.RCC.constrain();
-    let mut gpiod = dp.GPIOD.split(&mut rcc.ahb);
+        let mut flash = dp.FLASH.constrain();
+        let mut rcc = dp.RCC.constrain();
+        let mut gpioa = dp.GPIOA.split(&mut rcc.apb2);
 
+    
+    
     let clocks = rcc.cfgr.freeze(&mut flash.acr);
-    let delay = hal::delay::Delay::new(cp.SYST, clocks);
+    let mut delay = stm32f1xx_hal::delay::Delay::new(cp.SYST, clocks);
 
-    let rs = gpiod
-        .pd1
-        .into_push_pull_output(&mut gpiod.moder, &mut gpiod.otyper);
-    let en = gpiod
-        .pd2
-        .into_push_pull_output(&mut gpiod.moder, &mut gpiod.otyper);
-    let b4 = gpiod
-        .pd4
-        .into_push_pull_output(&mut gpiod.moder, &mut gpiod.otyper);
-    let b5 = gpiod
-        .pd5
-        .into_push_pull_output(&mut gpiod.moder, &mut gpiod.otyper);
-    let b6 = gpiod
-        .pd6
-        .into_push_pull_output(&mut gpiod.moder, &mut gpiod.otyper);
-    let b7 = gpiod
-        .pd7
-        .into_push_pull_output(&mut gpiod.moder, &mut gpiod.otyper);
+    //init pins
 
-    let mut delay = embassy::time::Delay::new();
-    pin_mut!(delay);
+    let rs = gpioa.pa1.into_push_pull_output(&mut gpioa.crl);
+    let en = gpioa.pa2.into_push_pull_output(&mut gpioa.crl);
+    let b4 = gpioa.pa4.into_push_pull_output(&mut gpioa.crl);
+    let b5 = gpioa.pa5.into_push_pull_output(&mut gpioa.crl);
+    let b6 = gpioa.pa6.into_push_pull_output(&mut gpioa.crl);
+    let b7 = gpioa.pa7.into_push_pull_output(&mut gpioa.crl);
 
-    let mut display = HD44780::new_4bit(rs, en, d4, d5, d6, d7, delay.as_mut())
-        .await
-        .unwrap();
+    let mut lcd = HD44780::new_4bit(rs, en, b4, b5, b6, b7, &mut delay);
 
-    display.clear(delay.as_mut()).await;
-    display.write_str(msg, delay.as_mut()).await;
+// Unshift display and set cursor to 0
+lcd.unwrap().reset(&mut delay); 
 
-    let mut lcd = HD44780::new_4bit(rs, en, b4, b5, b6, b7, delay);
-    lcd.reset();
-    lcd.clear();
-    lcd.set_display_mode(DisplayMode {
-        display: Display::On,
-        cursor_visibility: Cursor::Visible,
-        cursor_blink: CursorBlink::On,
-    });
-    lcd.write_str("Hello, world!");
+// Clear existing characters
+lcd.expect("invalid conection").clear(&mut delay); 
 
-    loop {}
+// Display the following string
+lcd.expect("invalid conection").write_str("Hello, world!", &mut delay);
+
+// Move the cursor to the second line
+lcd.expect("invalid conection").set_cursor_pos(40, &mut delay);
+
+// Display the following string on the second line
+lcd.expect("invalid conection").write_str("I'm on line 2!", &mut delay);
+
+
+    // lcd.reset();
+    // lcd.clear();
+    // lcd.set_display_mode(
+    //     DisplayMode {
+    //         display: Display::On,
+    //         cursor_visibility: Cursor::Visible,
+    //         cursor_blink: CursorBlink::On,
+    //     });
+/*
+    init::LateResources{
+        delay,
+    }
+    */
 }
+
+    #[idle]
+    fn idle(cx:idle::Context) -> ! {
+
+    loop{}
+    }
+};
+
+ 
